@@ -498,7 +498,7 @@ namespace ConsoleApp1
             } while (flag == false);
             if (enteredString.Length > 1)
             {
-                enteredString = enteredString.Substring(0, 1).ToUpper() + enteredString.Substring(1, enteredString.Length - 1).ToLower();
+                enteredString = enteredString.Substring(0, 1).ToUpper() + enteredString.Substring(1, enteredString.Length - 1);
             }
             else if (enteredString.Length == 1)
             {
