@@ -9,7 +9,7 @@ using System.Threading;
 
 namespace Laba1
 {
-    class NYSSLaba1
+    class PhoneBook
     {
         public static Dictionary<int, ArrayList> people = new Dictionary<int, ArrayList>();
         static void Main(string[] args)
