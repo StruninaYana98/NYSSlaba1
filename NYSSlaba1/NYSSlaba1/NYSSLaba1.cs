@@ -5,16 +5,17 @@ using System.Security.Cryptography.X509Certificates;
 using System.Reflection.PortableExecutable;
 using System.Text.RegularExpressions;
 using System.Xml;
+using System.Threading;
 
-namespace ConsoleApp1
+namespace Laba1
 {
-    class Program
-
+    class NYSSLaba1
     {
         public static Dictionary<int, ArrayList> people = new Dictionary<int, ArrayList>();
         static void Main(string[] args)
         {
-
+            Console.WriteLine("             ЗДРАВСТВУЙТЕ! ВЫ ОТКРЫЛИ ТЕЛЕФОННУЮ КНИЖКУ");
+            Console.WriteLine($"                       Сегодня: {DateTime.Now.ToString("dd.MM.yyyy")}");
 
             int n;
             do
@@ -24,14 +25,14 @@ namespace ConsoleApp1
                 do
                 {
                     Console.ForegroundColor = ConsoleColor.Green;
-                    Console.Write("\n___________________ВВЕДИТЕ НОМЕР ОПЕРАЦИИ___________________\n\n" +
+                    Console.Write("\n______________________ВВЕДИТЕ НОМЕР ОПЕРАЦИИ______________________\n\n" +
                                   " 0 - Добавить новую запись \n" +
                                   " 1 - Редактировать существующую запись \n" +
                                   " 2 - Удалить запись \n" +
                                   " 3 - Просмотреть полную информацию по существующей учетной записи \n" +
                                   " 4 - Просмотреть краткую информацию по всем учетным записям\n" +
                                   " 5 - Закрыть телефонную книжку\n\n" +
-                                  "                      ОПЕРАЦИЯ №: ");
+                                  "                           ОПЕРАЦИЯ №: ");
 
                     string tryN = Console.ReadLine();
                     if (int.TryParse(tryN, out n) && (n >= 0) && (n <= 5))
@@ -62,13 +63,17 @@ namespace ConsoleApp1
                 {
                     ShortView();
                 }
+                if (n == 5)
+                {
+                    Console.WriteLine("\n                   СЕАНС ОКОНЧЕН! ДО СВИДАНИЯ!");
+                }
             } while (n != 5);
         }
 
         static void Entry(int i)
         {
-            Console.WriteLine($"________________________________ЗАПИСЬ №{i}________________________________\n\n" +
-                               "!!!Для отмены операции нажмите <Esc>, для продолжения нажмите <Enter> !!!\n");
+            Console.WriteLine($"_________________________________ЗАПИСЬ №{i}_________________________________\n\n" +
+                               " === Для отмены операции нажмите <Esc>, для продолжения нажмите <Enter> ===\n");
             ConsoleKeyInfo key;
             do
             {
@@ -76,63 +81,108 @@ namespace ConsoleApp1
             } while (key.Key != ConsoleKey.Enter && key.Key != ConsoleKey.Escape);
             if (key.Key == ConsoleKey.Enter)
             {
-
-                Console.Write($"     ФАМИЛИЯ: ");
-
-                string lastname = ReadindCorrectString("Введите корректную фамилию: ");
-                RequiredStringField(lastname, "Введите корректную фамилию: ", out lastname);
-
-                Console.Write("     ИМЯ: ");
-                string firstname = ReadindCorrectString("Введите корректное имя: ");
-                RequiredStringField(firstname, "Введите корректное имя: ", out firstname);
-
-                Console.Write("     ОТЧЕСТВО (необязательное поле): ");
-                string patronymic = ReadindCorrectString("Введите корректное отчество: ");
-
-                if (patronymic == "")
-                {
-                    patronymic = null;
-                }
-
-                Console.Write("     НОМЕР ТЕЛЕФОНА: ");
-                long telephone = ReadingCorrectNumber("Введите корректный номер телефона: ");
-                if (telephone < 0)
-                {
-                    RequiredNumberField(telephone, "Введите корректный номер телефона: ", out telephone);
-                }
-
-                Console.Write("     СТРАНА: ");
-                string country = ReadindCorrectString("Введите корректную страну: ");
-                RequiredStringField(country, "Введите корректную страну: ", out country);
-
-                Console.Write("     ДАТА РОЖДЕНИЯ (необязательное поле): ");
-                DateTime birth = ReadingCorrectDate("Введите корректную дату: ");
-
-                Console.Write("     ОРГАНИЗАЦИЯ (необязательное поле): ");
-                string organization = Console.ReadLine();
-                if (organization == "")
-                {
-                    organization = null;
-                }
-                Console.Write("     ДОЛЖНОСТЬ (необязательное поле): ");
-                string position = ReadindCorrectString("Введите корректную должность: ");
-                if (position == "")
-                {
-                    position = null;
-                }
-                Console.Write("     ЗАМЕТКИ (необязательное поле): ");
-                string notes = Console.ReadLine();
-                if (notes == "")
-                {
-                    notes = null;
-                }
-                people.Add(i, new ArrayList() { lastname, firstname, patronymic, telephone, country, birth, organization, position, notes });
+                string lastname = LastName();
+                string firstname = FirstName();
+                string middlename = MiddleName();
+                long telephone = Telephone();
+                string country = Country();
+                DateTime birth = Birth();
+                string organization = Organization();
+                string position = Position();
+                string notes = Notes();
+                people.Add(i, new ArrayList() { lastname, firstname, middlename, telephone, country, birth, organization, position, notes });
             }
-            else if (key.Key == ConsoleKey.Escape)
-            {
-
-            }
+            else if (key.Key == ConsoleKey.Escape) { }
         }
+
+        static string LastName()
+        {
+            Console.Write($"     ФАМИЛИЯ: ");
+
+            string lastname = ReadindCorrectString("Введите корректную фамилию: ");
+            RequiredStringField(lastname, "Введите корректную фамилию: ", out lastname);
+            lastname = Thread.CurrentThread.CurrentCulture.TextInfo.ToTitleCase(lastname);
+            return lastname;
+        }
+        static string FirstName()
+        {
+            Console.Write("     ИМЯ: ");
+            string firstname = ReadindCorrectString("Введите корректное имя: ");
+            RequiredStringField(firstname, "Введите корректное имя: ", out firstname);
+            firstname = Thread.CurrentThread.CurrentCulture.TextInfo.ToTitleCase(firstname);
+            return firstname;
+        }
+        static string MiddleName()
+        {
+            Console.Write("     ОТЧЕСТВО (необязательное поле): ");
+            string middlename = ReadindCorrectString("Введите корректное отчество: ");
+
+            if (middlename == "")
+            {
+                middlename = null;
+            }
+            else
+            {
+                middlename = Thread.CurrentThread.CurrentCulture.TextInfo.ToTitleCase(middlename);
+            }
+            return middlename;
+        }
+        static long Telephone()
+        {
+            Console.Write("     НОМЕР ТЕЛЕФОНА: +7");
+            long telephone = ReadingCorrectNumber("Введите корректный номер телефона: ");
+            if (telephone < 0)
+            {
+                RequiredNumberField(telephone, "Введите корректный номер телефона: ", out telephone);
+            }
+            return telephone;
+        }
+        static string Country()
+        {
+            Console.Write("     СТРАНА: ");
+            string country = ReadindCorrectString("Введите корректную страну: ");
+            RequiredStringField(country, "Введите корректную страну: ", out country);
+            country = Thread.CurrentThread.CurrentCulture.TextInfo.ToTitleCase(country);
+            return country;
+        }
+        static DateTime Birth()
+        {
+            Console.Write("     ДАТА РОЖДЕНИЯ в формате ДД.ММ.ГГГГ (необязательное поле): ");
+            DateTime birth = ReadingCorrectDate("Введите корректную дату: ");
+            return birth;
+        }
+        static string Organization()
+        {
+            Console.Write("     ОРГАНИЗАЦИЯ (необязательное поле): ");
+            string organization = Console.ReadLine();
+            if (organization == "")
+            {
+                organization = null;
+            }
+            return organization;
+        }
+        static string Position()
+        {
+            Console.Write("     ДОЛЖНОСТЬ (необязательное поле): ");
+            string position = ReadindCorrectString("Введите корректную должность: ");
+            if (position == "")
+            {
+                position = null;
+            }
+            return position;
+        }
+        static string Notes()
+        {
+            Console.Write("     ЗАМЕТКИ (необязательное поле): ");
+            string notes = Console.ReadLine();
+            if (notes == "")
+            {
+                notes = null;
+            }
+            return notes;
+        }
+
+
         static void Editing()
         {
             if (people.Count > 0)
@@ -142,14 +192,15 @@ namespace ConsoleApp1
                 bool isEditingPossible = false;
                 do
                 {
-                    Console.Write("\n________ВВЕДИТЕ НОМЕР УЧЕТНОЙ ЗАПИСИ, КОТОРУЮ ВЫ ХОТЕЛИ БЫ ОТРЕДАКТИРОВАТЬ________\n" +
+                    Console.Write("\n_______ВВЕДИТЕ НОМЕР УЧЕТНОЙ ЗАПИСИ, КОТОРУЮ ВЫ ХОТЕЛИ БЫ ОТРЕДАКТИРОВАТЬ_______\n" +
                                   $" (всего {people.Count} записей в телефонной книжке)\n\n" +
-                                   $"! ! ! Для отмены операции нажмите <Esc>,  для продолжения нажмите <Enter> ! ! !\n\n");
+                                   $" === Для отмены операции нажмите <Esc>,  для продолжения нажмите <Enter> ===\n\n");
                     ConsoleKeyInfo key;
                     do
                     {
                         key = Console.ReadKey();
                     } while (key.Key != ConsoleKey.Enter && key.Key != ConsoleKey.Escape);
+
                     if (key.Key == ConsoleKey.Enter)
                     {
                         isEditingPossible = true;
@@ -177,24 +228,23 @@ namespace ConsoleApp1
                     int operationNumber;
                     do
                     {
-
                         flag = false;
-
                         do
                         {
                             Console.WriteLine($"\n ТЕКУЩЕЕ СОСТОЯНИЕ ЗАПИСИ №{i}");
                             Console.WriteLine($" Для редактирования введите 0   | ФАМИЛИЯ: {people[i][0]}");
                             Console.WriteLine($" Для редактирования введите 1   | ИМЯ: {people[i][1]}");
                             Console.WriteLine($" Для редактирования введите 2   | ОТЧЕСТВО: {people[i][2]}");
-                            Console.WriteLine($" Для редактирования введите 3   | НОМЕР ТЕЛЕФОНА: {people[i][3]}");
+                            Console.WriteLine($" Для редактирования введите 3   | НОМЕР ТЕЛЕФОНА: +7{people[i][3]}");
                             Console.WriteLine($" Для редактирования введите 4   | СТРАНА: {people[i][4]}");
-                            if ((DateTime)people[i][5] == default(DateTime))
+                            DateTime date = (DateTime)people[i][5];
+                            if (date == default(DateTime))
                             {
                                 Console.WriteLine($" Для редактирования введите 5   | ДАТА РОЖДЕНИЯ:");
                             }
                             else
                             {
-                                Console.WriteLine($" Для редактирования введите 5   | ДАТА РОЖДЕНИЯ: {people[i][5]}");
+                                Console.WriteLine($" Для редактирования введите 5   | ДАТА РОЖДЕНИЯ: {date.ToString("dd.MM.yyyy")}");
                             }
                             Console.WriteLine($" Для редактирования введите 6   | ОРГАНИЗАЦИЯ: {people[i][6]}");
                             Console.WriteLine($" Для редактирования введите 7   | ДОЛЖНОСТЬ: {people[i][7]}");
@@ -207,80 +257,44 @@ namespace ConsoleApp1
                             if (int.TryParse(operation, out operationNumber) && (operationNumber >= 0) && (operationNumber <= 10))
                             {
                                 flag = true;
+                                Console.WriteLine();
+                            }
+                            else
+                            {
+                                Console.ForegroundColor = ConsoleColor.Red;
+                                Console.WriteLine("! ! ! НЕКОРРЕКТНЫЙ НОМЕР ОПЕРАЦИИ ! ! !");
+                                Console.ResetColor();
                             }
 
                         } while (flag == false);
                         switch (operationNumber)
                         {
                             case 0:
-                                Console.Write("\n ФАМИЛИЯ: ");
-                                string lastname = ReadindCorrectString("Введите корректную фамилию: ");
-                                RequiredStringField(lastname, "Введите корректную фамилию: ", out lastname);
-                                people[i][0] = lastname;
+                                people[i][0] = LastName();
                                 break;
                             case 1:
-                                Console.Write("\n ИМЯ: ");
-                                string firstname = ReadindCorrectString("Введите корректное имя: ");
-                                RequiredStringField(firstname, "Введите корректное имя: ", out firstname);
-                                people[i][1] = firstname;
+                                people[i][1] = FirstName();
                                 break;
                             case 2:
-                                Console.Write("\n ОТЧЕСТВО (необязательное поле): ");
-                                string patronymic = ReadindCorrectString("Введите корректное отчество: ");
-                                if (patronymic == "")
-                                {
-                                    patronymic = null;
-                                }
-                                people[i][2] = patronymic;
+                                people[i][2] = MiddleName();
                                 break;
                             case 3:
-                                Console.Write("\n НОМЕР ТЕЛЕФОНА: ");
-                                long telephone = ReadingCorrectNumber("Введите корректный номер телефона: ");
-                                if (telephone < 0)
-                                {
-                                    RequiredNumberField(telephone, "Введите корректный номер телефона: ", out telephone);
-                                }
-                                people[i][3] = telephone;
+                                people[i][3] = Telephone();
                                 break;
-
                             case 4:
-                                Console.Write("\n СТРАНА: ");
-                                string country = ReadindCorrectString("Введите корректную страну: ");
-                                RequiredStringField(country, "Введите корректную страну: ", out country);
-                                people[i][4] = country;
+                                people[i][4] = Country();
                                 break;
                             case 5:
-                                Console.Write("\n ДАТА РОЖДЕНИЯ (необязательное поле): ");
-                                DateTime birth = ReadingCorrectDate("Введите корректную дату: ");
-                                people[i][5] = birth;
+                                people[i][5] = Birth();
                                 break;
                             case 6:
-                                Console.Write("\n ОРГАНИЗАЦИЯ (необязательное поле): ");
-                                string organization = Console.ReadLine();
-                                if (organization == "")
-                                {
-                                    organization = null;
-                                }
-                                people[i][6] = organization;
+                                people[i][6] = Organization();
                                 break;
                             case 7:
-
-                                Console.Write("\n ДОЛЖНОСТЬ (необязательное поле): ");
-                                string position = ReadindCorrectString("Введите корректную должность: ");
-                                if (position == "")
-                                {
-                                    position = null;
-                                }
-                                people[i][7] = position;
+                                people[i][7] = Position();
                                 break;
                             case 8:
-                                Console.Write("\n ЗАМЕТКИ (необязательное поле): ");
-                                string notes = Console.ReadLine();
-                                if (notes == "")
-                                {
-                                    notes = null;
-                                }
-                                people[i][8] = notes;
+                                people[i][8] = Notes();
                                 break;
                             case 9:
                                 Dictionary<int, ArrayList> list = new Dictionary<int, ArrayList>();
@@ -300,7 +314,7 @@ namespace ConsoleApp1
             else
             {
                 Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("! ! ! РЕДАКТИРОВАНИЕ НЕВОЗМОЖНО, ТАК КАК В ТЕЛЕФОННОЙ КНИЖКЕ НЕТ ЗАПИСЕЙ ! ! !");
+                Console.WriteLine("! ! ! РЕДАКТИРОВАНИЕ НЕВОЗМОЖНО. В ТЕЛЕФОННОЙ КНИЖКЕ НЕТ ЗАПИСЕЙ ! ! !");
                 Console.ResetColor();
             }
         }
@@ -314,9 +328,9 @@ namespace ConsoleApp1
                 bool isDeletePossible = false;
                 do
                 {
-                    Console.Write("\n__________ВВЕДИТЕ НОМЕР УЧЕТНОЙ ЗАПИСИ, КОТОРУЮ ВЫ ХОТЕЛИ БЫ УДАЛИТЬ__________\n" +
+                    Console.Write("\n_________ВВЕДИТЕ НОМЕР УЧЕТНОЙ ЗАПИСИ, КОТОРУЮ ВЫ ХОТЕЛИ БЫ УДАЛИТЬ_________\n" +
                                    $" (всего {people.Count} записей в телефонной книжке)\n\n" +
-                                   $"! ! ! Для отмены операции нажмите <Esc>,  для продолжения нажмите <Enter> ! ! !\n");
+                                   $" === Для отмены операции нажмите <Esc>,  для продолжения нажмите <Enter> ===\n\n");
                     ConsoleKeyInfo key;
                     do
                     {
@@ -336,7 +350,7 @@ namespace ConsoleApp1
                         else
                         {
                             Console.ForegroundColor = ConsoleColor.Red;
-                            Console.WriteLine($"! ! ! Ошибка ! ! ! Запись с номером {s} отсутствует в телефонной книжке");
+                            Console.WriteLine($"\n! ! ! Ошибка ! ! ! Запись с номером {s} отсутствует в телефонной книжке");
                             Console.ResetColor();
                         }
                     }
@@ -354,13 +368,13 @@ namespace ConsoleApp1
                         people[k] = people[k + 1];
                     }
                     people.Remove(people.Count);
-                    Console.WriteLine($"__________________Запись №{i} успешно удалена!__________________");
+                    Console.WriteLine($"_____________________Запись №{i} успешно удалена!_____________________");
                 }
             }
             else
             {
                 Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("! ! ! УДАЛЕНИЕ НЕВОЗМОЖНО, ТАК КАК В ТЕЛЕФОННОЙ КНИЖКЕ НЕТ ЗАПИСЕЙ ! ! !");
+                Console.WriteLine("! ! ! УДАЛЕНИЕ НЕВОЗМОЖНО. В ТЕЛЕФОННОЙ КНИЖКЕ НЕТ ЗАПИСЕЙ ! ! !");
                 Console.ResetColor();
             }
         }
@@ -375,7 +389,7 @@ namespace ConsoleApp1
                 {
                     Console.Write("\n__________ВВЕДИТЕ НОМЕР УЧЕТНОЙ ЗАПИСИ, КОТОРУЮ ВЫ ХОТЕЛИ БЫ ПРОСМОТРЕТЬ__________\n" +
                                    $" (всего {people.Count} записей в телефонной книжке)\n\n" +
-                                   $"! ! ! Для отмены операции нажмите <Esc>,  для продолжения нажмите <Enter> ! ! !\n\n");
+                                   $" === Для отмены операции нажмите <Esc>,  для продолжения нажмите <Enter> ===\n\n");
                     ConsoleKeyInfo key;
                     do
                     {
@@ -413,15 +427,16 @@ namespace ConsoleApp1
                     Console.WriteLine($"     ФАМИЛИЯ: {people[i][0]}");
                     Console.WriteLine($"     ИМЯ: {people[i][1]}");
                     Console.WriteLine($"     ОТЧЕСТВО: {people[i][2]}");
-                    Console.WriteLine($"     НОМЕР ТЕЛЕФОНА: {people[i][3]}");
+                    Console.WriteLine($"     НОМЕР ТЕЛЕФОНА: +7{people[i][3]}");
                     Console.WriteLine($"     СТРАНА: {people[i][4]}");
-                    if ((DateTime)people[i][5] == default(DateTime))
+                    DateTime date = (DateTime)people[i][5];
+                    if (date == default(DateTime))
                     {
                         Console.WriteLine($"     ДАТА РОЖДЕНИЯ:");
                     }
                     else
                     {
-                        Console.WriteLine($"     ДАТА РОЖДЕНИЯ: {people[i][5]}");
+                        Console.WriteLine($"     ДАТА РОЖДЕНИЯ: {date.ToString("dd.MM.yyyy")}");
                     }
                     Console.WriteLine($"     ОРГАНИЗАЦИЯ: {people[i][6]}");
                     Console.WriteLine($"     ДОЛЖНОСТЬ: {people[i][7]}");
@@ -431,7 +446,7 @@ namespace ConsoleApp1
             else
             {
                 Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("! ! ! ПРОСМОТР НЕВОЗМОЖЕН, ТАК КАК В ТЕЛЕФОННОЙ КНИЖКЕ НЕТ ЗАПИСЕЙ ! ! !");
+                Console.WriteLine("! ! ! ПРОСМОТР НЕВОЗМОЖЕН. В ТЕЛЕФОННОЙ КНИЖКЕ НЕТ ЗАПИСЕЙ ! ! !");
                 Console.ResetColor();
             }
         }
@@ -459,7 +474,7 @@ namespace ConsoleApp1
                     {
                         Console.Write(" ");
                     }
-                    Console.WriteLine(people[i][3]);
+                    Console.WriteLine("+7" + people[i][3]);
                 }
             }
             else
@@ -480,7 +495,7 @@ namespace ConsoleApp1
                 bool isCorrect = true;
                 for (int i = 0; i < enteredString.Length; i++)
                 {
-                    if (!(Char.IsLetter(enteredString[i]) || enteredString[i] == ' ' || enteredString[i] == '-'))
+                    if (!(Char.IsLetter(enteredString[i]) || enteredString[i] == '-' || enteredString[i] == ' '))   // покрывает случаи составных имен и названий стран
                     {
                         isCorrect = false;
                     }
@@ -496,14 +511,7 @@ namespace ConsoleApp1
                     flag = true;
                 }
             } while (flag == false);
-            if (enteredString.Length > 1)
-            {
-                enteredString = enteredString.Substring(0, 1).ToUpper() + enteredString.Substring(1, enteredString.Length - 1);
-            }
-            else if (enteredString.Length == 1)
-            {
-                enteredString = enteredString.ToUpper();
-            }
+
             return enteredString;
         }
         static long ReadingCorrectNumber(string s)
@@ -514,7 +522,7 @@ namespace ConsoleApp1
             {
                 string number = Console.ReadLine();
 
-                if (Int64.TryParse(number, out n) || number == "")
+                if ((Int64.TryParse(number, out n) && number.Length == 10) || number == "")
                 {
                     flag = true;
                     if (number == "")
@@ -527,6 +535,7 @@ namespace ConsoleApp1
                     Console.ForegroundColor = ConsoleColor.Red;
                     Console.Write($"! ! ! Ошибка ! ! ! {s}");
                     Console.ResetColor();
+                    Console.Write(" +7");
                 }
             } while (flag == false);
 
@@ -544,14 +553,14 @@ namespace ConsoleApp1
                     date = default(DateTime);
                     flag = true;
                 }
-                else if (DateTime.TryParse(d, out date))
+                else if (DateTime.TryParse(d, out date) && Regex.Match(d, @"\d{2}\.\d{2}\.\d{4}").Success)
                 {
                     flag = true;
                 }
                 else
                 {
                     Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine($"! ! ! Ошибка ! ! ! {s}");
+                    Console.Write($"! ! ! Ошибка ! ! ! {s}");
                     Console.ResetColor();
                 }
             } while (flag == false);
@@ -575,6 +584,7 @@ namespace ConsoleApp1
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.Write($"~~~ Это обязательное поле! ~~~ \n! ! ! Ошибка ! ! ! {isnotcorrect}");
                 Console.ResetColor();
+                Console.Write(" +7");
                 n = ReadingCorrectNumber(isnotcorrect);
             }
             field = n;
