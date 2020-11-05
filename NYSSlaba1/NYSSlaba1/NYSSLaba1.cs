@@ -248,7 +248,7 @@ namespace Laba1
                             }
                             Console.WriteLine($" Для редактирования введите 6   | ОРГАНИЗАЦИЯ: {people[i][6]}");
                             Console.WriteLine($" Для редактирования введите 7   | ДОЛЖНОСТЬ: {people[i][7]}");
-                            Console.WriteLine($" Для редактирования введите 8   | ЗАМЕТКИ: {people[i][1]}");
+                            Console.WriteLine($" Для редактирования введите 8   | ЗАМЕТКИ: {people[i][8]}");
                             Console.WriteLine(" Для редактирования всех полей записи введите 9");
                             Console.WriteLine(" Для завершения редактирования записи введите 10\n");
                             Console.Write(" ВЫПОЛНИТЬ ОПЕРАЦИЮ № ");
